@@ -15,6 +15,9 @@ const mongoose = require('mongoose');
 
 main().catch(err => console.log(err));
 
+
+let bookModel;
+
 async function main() {
     await mongoose.connect('mongodb://localhost:27017/books');
 
@@ -24,15 +27,20 @@ async function main() {
         status: String,
         email: String,
     });
-    const bookModel = mongoose.model('book', kittySchema);
+    bookModel = mongoose.model('book', bookSchema);
+
+    // seedData();
+}
+
+
+async function seedData() {
 
     //seeding database
-
     const book1 = new bookModel({
         title: 'BEHIND HER EYES',
         description: 'The book follows a London receptionist named Louise, who becomes romantically entangled with her psychiatrist boss, David, while secretly befriending his enigmatic wife, Adele.',
         status: 'released',
-        email: 'sui96@gmail.com'
+        email: 'y.linux96@gmail.com'
 
 
     });
@@ -50,21 +58,37 @@ async function main() {
         title: 'Poems',
         description: 'Elizabeth Bishop poetry is dearly loved amongst her fans but perhaps not as wellknown as it should be; for one of America towering talents of the 20th century, she is not read nearly as much as Eliot or Whitman, or even cummings.',
         status: 'not released',
-        email: 'moh1996@gmail.com'
+        email: 'y.linux96@gmail.com'
 
 
     });
-    
-    await fluffy.save();
+
+    await book1.save();
+    await book2.save();
+    await book3.save();
+
 
 }
 
-
+server.get('/books', seedData);
+server.get('/getBook', getBookHandler);
 server.get('/', homeHandler);
+
+
 
 function homeHandler(req, res) {
 
     res.send('Hello World')
+}
+
+
+function getBookHandler(req, res) {
+
+    const email = req.query.email;
+    bookModel.find([email.email], (error, result) => {
+        console.log(result);
+
+    })
 }
 
 server.listen(PORT, () => {
