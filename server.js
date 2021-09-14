@@ -85,8 +85,9 @@ function homeHandler(req, res) {
 function getBookHandler(req, res) {
 
     const email = req.query.email;
-    bookModel.find([email.email], (error, result) => {
+    bookModel.find({email:email}, (error, result) => {
         console.log(result);
+        res.send(result);
 
     })
 }
