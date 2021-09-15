@@ -21,8 +21,9 @@ main().catch(err => console.log(err));
 let bookModel;
 
 async function main() {
-    await mongoose.connect(process.env.MONGO_URL);
 
+    // await mongoose.connect(process.env.MONGO_URL);
+    await mongoose.connect('mongodb://localhost:27017/books');
     const bookSchema = new mongoose.Schema({
         title: String,
         description: String,
@@ -77,7 +78,7 @@ server.get('/getBook', getBookHandler);
 server.get('/', homeHandler);
 server.post('/addBook', addBookHandler);
 server.delete('/deleteBooks/:id', deleteBookHandler);
-
+server.put('/updateBook/:id',updateBookHandler);
 
 function homeHandler(req, res) {
 
@@ -87,12 +88,14 @@ function homeHandler(req, res) {
 async function addBookHandler(req, res) {
 
     const title = req.body.title;
+    const description = req.body.description;
     const email = req.body.email;
     const status = req.body.status;
 
 
     await bookModel.create({
         title: title,
+        description: description,
         email: email,
         status: status
     })
@@ -116,17 +119,30 @@ function getBookHandler(req, res) {
 
 function deleteBookHandler(req, res) {
 
-    const bookID= req.params.id
+    const bookID = req.params.id
     const email = req.query.email
 
-    bookModel.deleteOne({_id:bookID},(err,result)=>{
+    bookModel.deleteOne({ _id: bookID }, (err, result) => {
         bookModel.find({ email: email }, (error, result) => {
 
             res.send(result);
-    
+
         })
     })
-    
+
+}
+
+function updateBookHandler(req,res) {
+    const id = req.params.id;
+    const {title,description,status,email} = req.body;
+
+    bookModel.findByIdAndUpdate(id,{title,description,status,email},(err,result)=>{
+        bookModel.find({ email: email }, (error, result) => {
+
+            res.send(result);
+
+        })
+    })
 }
 
 server.listen(PORT, () => {
